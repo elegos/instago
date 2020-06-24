@@ -15,6 +15,8 @@ It will produce the image resized and converted for Instagram in the same direct
 
 - `./instago /path/to/the/original/file`
 
+If no image path is specified and `config.yml` is set to, all the images of where the binary is will be converted all together.
+
 If images are too big they will be resized using the best match on the aspect ratiom as follows
 
 Square (1:1)
