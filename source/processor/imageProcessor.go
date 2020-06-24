@@ -1,25 +1,17 @@
-package main
+package processor
 
 import (
 	"fmt"
 	"image"
-	_ "image/gif"
+	_ "image/gif" // Enable gif decoding
 	"image/jpeg"
-	_ "image/jpeg"
-	_ "image/png"
+	_ "image/png" // Enable png decoding
 	"math"
 	"os"
 
+	"github.com/elegos/instago/source"
 	"github.com/nfnt/resize"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	_ExitCodeArgs            = 1
-	_ExitCodeFileNotFound    = 2
-	_ExitCodeCantOpenFile    = 3
-	_ExitCodeCantParseImage  = 4
-	_ExitCodeCantCreateImage = 5
 )
 
 type instaSize struct {
@@ -41,15 +33,8 @@ var sizes = []instaSize{
 	{maxHeight: 654, maxWidth: 420, aspectRatio: 0.645161290322}, // IGTV cover 1:1.55
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		logrus.Errorf("Usage: %s input_image", os.Args[0])
-
-		os.Exit(_ExitCodeArgs)
-	}
-
-	src := os.Args[1]
-
+// ProcessImage convert an image to .insta.jpg
+func ProcessImage(src string) {
 	if _, err := os.Stat(src); err != nil {
 		logrus.Errorf("File '%s' does not exist", src)
 		os.Exit(2)
@@ -58,14 +43,14 @@ func main() {
 	srcReader, err := os.Open(src)
 	if err != nil {
 		logrus.WithError(err).Error("Impossible to open the source image")
-		os.Exit(_ExitCodeCantOpenFile)
+		os.Exit(source.ExitCodeCantOpenFile)
 	}
 	defer srcReader.Close()
 
 	srcImg, _, err := image.Decode(srcReader)
 	if err != nil {
 		logrus.WithError(err).Error("Impossible to read the image's data")
-		os.Exit(_ExitCodeCantParseImage)
+		os.Exit(source.ExitCodeCantParseImage)
 	}
 
 	bounds := srcImg.Bounds()
@@ -112,11 +97,14 @@ func main() {
 	outFile, err := os.Create(outFilePath)
 	if err != nil {
 		logrus.WithError(err).Error("Impossible to create the output image")
-		os.Exit(_ExitCodeCantCreateImage)
+		os.Exit(source.ExitCodeCantCreateImage)
 	}
 	defer outFile.Close()
 
 	jpeg.Encode(outFile, destImg, nil)
 
-	logrus.WithField("converted file", outFilePath).Info("The image was succesfully converted")
+	logrus.WithFields(logrus.Fields{
+		"input file":  src,
+		"output file": outFilePath,
+	}).Info("The image was succesfully converted")
 }

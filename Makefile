@@ -3,8 +3,9 @@
 build:
 	mkdir -p out
 	go mod download
-	go build -o out/instago cmd.go
-	cp InstaGo.desktop out/InstaGo.desktop
+	go build -o out/instago source/cmd/cmd.go
+	cp res/InstaGo.desktop out/InstaGo.desktop
+	cp res/config.yml out/config.yml
 
 clean:
 	rm -rf out/*

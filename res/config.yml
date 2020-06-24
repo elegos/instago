@@ -1,0 +1,3 @@
+# Automatically convert all images in the same folder
+# of the binary, if no arguments are specified
+autoConvert: true
